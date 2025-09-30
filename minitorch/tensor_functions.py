@@ -126,8 +126,9 @@ class Sigmoid(Function):
         # Implement for Task 2.4.
         (sigmoid_result,) = ctx.saved_values
 
-        ones = sigmoid_result.f.ones_like(sigmoid_result)
-        ones_minus_sigmoid = sigmoid_result.f.sub_zip(ones, sigmoid_result)
+        ones = grad_output.zeros() + 1.0
+        neg_sigmoid_result = sigmoid_result.f.neg_map(sigmoid_result)
+        ones_minus_sigmoid = sigmoid_result.f.add_zip(ones, neg_sigmoid_result)
 
         grad_sigmoid = sigmoid_result.f.mul_zip(sigmoid_result, ones_minus_sigmoid)
         return grad_output.f.mul_zip(grad_output, grad_sigmoid)
@@ -231,13 +232,19 @@ class IsClose(Function):
 class Permute(Function):
     @staticmethod
     def forward(ctx: Context, a: Tensor, order: Tensor) -> Tensor:
-        # TODO: Implement for Task 2.3.
-        raise NotImplementedError("Need to implement for Task 2.3")
+        # Implement for Task 2.3.
+        dim_permutation = order._tensor._storage.astype(np.int)
+        ctx.save_for_backward(dim_permutation)
+        return a._new(a._tensor.permute(*dim_permutation))
 
     @staticmethod
     def backward(ctx: Context, grad_output: Tensor) -> Tuple[Tensor, float]:
-        # TODO: Implement for Task 2.4.
-        raise NotImplementedError("Need to implement for Task 2.4")
+        # Implement for Task 2.4.
+        (dim_permutation,) = ctx.saved_values
+        inv_order: list[int] = [0] * len(dim_permutation)
+        for i, idx in enumerate(dim_permutation):
+            inv_order[idx] = i
+        return grad_output.permute(inv_order), 0.0
 
 
 class View(Function):

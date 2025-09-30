@@ -329,7 +329,7 @@ def tensor_zip(fn: Callable[[float, float], float]) -> Any:
         b_shape: Shape,
         b_strides: Strides,
     ) -> None:
-        out_ndim = len(out_shape)
+        # Implement for Task 2.3.
         a_ndim = len(a_shape)
         b_ndim = len(b_shape)
 
@@ -388,8 +388,20 @@ def tensor_reduce(fn: Callable[[float, float], float]) -> Any:
         a_strides: Strides,
         reduce_dim: int,
     ) -> None:
-        # TODO: Implement for Task 2.3.
-        raise NotImplementedError("Need to implement for Task 2.3")
+        # Implement for Task 2.3.
+        coords = np.zeros_like(out_shape)
+        for output_idx in range(np.prod(out_shape)):
+            to_index(output_idx, out_shape, coords)
+            base_pos = index_to_position(coords, a_strides)
+
+            val = a_storage[base_pos]
+
+            for i in range(1, a_shape[reduce_dim]):
+                element_pos = base_pos + i * a_strides[reduce_dim]
+                val = fn(val, a_storage[element_pos])
+
+            output_pos = index_to_position(coords, out_strides)
+            out[output_pos] = val
 
     return _reduce
 
