@@ -329,8 +329,31 @@ def tensor_zip(fn: Callable[[float, float], float]) -> Any:
         b_shape: Shape,
         b_strides: Strides,
     ) -> None:
-        # TODO: Implement for Task 2.3.
-        raise NotImplementedError("Need to implement for Task 2.3")
+        out_ndim = len(out_shape)
+        a_ndim = len(a_shape)
+        b_ndim = len(b_shape)
+
+        for out_index in range(len(out)):
+            out_pos = []
+
+            out_pos = []
+            idx = out_index
+            for dim_size in reversed(out_shape):
+                out_pos.append(idx % dim_size)
+                idx //= dim_size
+            out_pos.reverse()
+
+            a_index = 0
+            for i in range(a_ndim):
+                if a_shape[i] > 1:
+                    a_index += out_pos[i] * a_strides[i]
+
+            b_index = 0
+            for i in range(b_ndim):
+                if b_shape[i] > 1:
+                    b_index += out_pos[i] * b_strides[i]
+
+            out[out_index] = fn(a_storage[a_index], b_storage[b_index])
 
     return _zip
 
