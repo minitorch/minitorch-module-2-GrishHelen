@@ -145,7 +145,7 @@ class ReLU(Function):
     def backward(ctx: Context, grad_output: Tensor) -> Tensor:
         # Implement for Task 2.4.
         (t1,) = ctx.saved_values
-        return t1.f.relu_back_zip(t1, grad_output)
+        return t1.f.relu_back_zip(t1, grad_output)  # type: ignore[return-value]
 
 
 class Log(Function):
@@ -159,7 +159,7 @@ class Log(Function):
     def backward(ctx: Context, grad_output: Tensor) -> Tensor:
         # Implement for Task 2.4.
         (t1,) = ctx.saved_values
-        return t1.f.log_back_zip(t1, grad_output)
+        return t1.f.log_back_zip(t1, grad_output)  # type: ignore[return-value]
 
 
 class Exp(Function):
