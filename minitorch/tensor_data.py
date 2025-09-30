@@ -95,7 +95,7 @@ def broadcast_index(
 
     for i in range(dim_diff + 1, len(big_shape)):
         small_dim_idx = i - dim_diff
-        if shape[small_dim_idx] == 1:
+        if shape[small_dim_idx] != 0:
             out_index[small_dim_idx] = 0
         else:
             out_index[small_dim_idx] = big_index[i]
