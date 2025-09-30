@@ -133,6 +133,8 @@ def shape_broadcast(shape1: UserShape, shape2: UserShape) -> UserShape:
             result.append(dim2)
         elif dim2 == 1:
             result.append(dim1)
+        else:
+            raise IndexingError("Dimensions mismatch")
 
     return tuple(result)
 
