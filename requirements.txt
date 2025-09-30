@@ -1,3 +1,4 @@
+colorama==0.4.6
 hypothesis==6.54
 mypy==0.981
 numba==0.61.2
