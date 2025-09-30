@@ -233,7 +233,7 @@ class Permute(Function):
     @staticmethod
     def forward(ctx: Context, a: Tensor, order: Tensor) -> Tensor:
         # Implement for Task 2.3.
-        dim_permutation = order._tensor._storage.astype(np.int)
+        dim_permutation = order._tensor._storage.astype(int)
         ctx.save_for_backward(dim_permutation)
         return a._new(a._tensor.permute(*dim_permutation))
 
