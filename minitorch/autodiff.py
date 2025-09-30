@@ -22,7 +22,17 @@ def central_difference(f: Any, *vals: Any, arg: int = 0, epsilon: float = 1e-6) 
     Returns:
         An approximation of $f'_i(x_0, \ldots, x_{n-1})$
     """
-    raise NotImplementedError("Need to include this file from past assignment.")
+    # Implement for Task 1.1.
+    vals_list = list(vals)
+    vals_list[arg] += epsilon / 2
+    f_plus = f(*vals_list)
+
+    vals_list = list(vals)
+    vals_list[arg] -= epsilon / 2
+    f_minus = f(*vals_list)
+
+    derivative_approx = (f_plus - f_minus) / epsilon
+    return derivative_approx
 
 
 variable_count = 1
@@ -50,7 +60,7 @@ class Variable(Protocol):
         pass
 
 
-def topological_sort(variable: Variable) -> Iterable[Variable]:
+def topological_sort(variable: Variable) -> List[Variable]:
     """
     Computes the topological order of the computation graph.
 
@@ -60,7 +70,22 @@ def topological_sort(variable: Variable) -> Iterable[Variable]:
     Returns:
         Non-constant Variables in topological order starting from the right.
     """
-    raise NotImplementedError("Need to include this file from past assignment.")
+    # Implement for Task 1.4.
+    top_order = []
+    visited = set()
+
+    def dfs(v: Variable) -> None:
+        if v.unique_id in visited or v.is_constant():
+            return
+        visited.add(v.unique_id)
+
+        for parent in v.parents:
+            dfs(parent)
+
+        top_order.append(v)
+
+    dfs(variable)
+    return top_order[::-1]
 
 
 def backpropagate(variable: Variable, deriv: Any) -> None:
@@ -74,7 +99,20 @@ def backpropagate(variable: Variable, deriv: Any) -> None:
 
     No return. Should write to its results to the derivative values of each leaf through `accumulate_derivative`.
     """
-    raise NotImplementedError("Need to include this file from past assignment.")
+    # Implement for Task 1.4.
+    top_order = topological_sort(variable)
+    derivatives = {variable.unique_id: deriv}
+
+    for var in top_order:
+        if var.is_leaf():
+            var.accumulate_derivative(derivatives[var.unique_id])
+        else:
+            chain = var.chain_rule(derivatives[var.unique_id])
+            for parent, d_parent in chain:
+                if parent.unique_id in derivatives:
+                    derivatives[parent.unique_id] += d_parent
+                else:
+                    derivatives[parent.unique_id] = d_parent
 
 
 @dataclass

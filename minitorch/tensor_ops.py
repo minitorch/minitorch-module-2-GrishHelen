@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Optional, Type
+from typing import TYPE_CHECKING, Any, Callable, Optional, Type, List
 
 import numpy as np
 from typing_extensions import Protocol
@@ -20,8 +20,7 @@ if TYPE_CHECKING:
 
 
 class MapProto(Protocol):
-    def __call__(self, x: Tensor, out: Optional[Tensor] = ..., /) -> Tensor:
-        ...
+    def __call__(self, x: Tensor, out: Optional[Tensor] = ..., /) -> Tensor: ...
 
 
 class TensorOps:
@@ -136,7 +135,7 @@ class SimpleOps(TensorOps):
 
     @staticmethod
     def zip(
-        fn: Callable[[float, float], float]
+        fn: Callable[[float, float], float],
     ) -> Callable[["Tensor", "Tensor"], "Tensor"]:
         """
         Higher-order tensor zip function ::
@@ -268,8 +267,20 @@ def tensor_map(fn: Callable[[float], float]) -> Any:
         in_shape: Shape,
         in_strides: Strides,
     ) -> None:
-        # TODO: Implement for Task 2.3.
-        raise NotImplementedError("Need to implement for Task 2.3")
+        # Implement for Task 2.3.
+        while len(in_shape) < len(out_shape):
+            in_shape = (1,) + in_shape
+            in_strides = (0,) + in_strides
+
+        for out_idx in np.ndindex(*out_shape):
+            in_pos = 0
+            out_pos = 0
+            for i, idx in enumerate(out_idx):
+                if in_shape[i] > 1:
+                    in_pos += idx * in_strides[i]
+                out_pos += idx * out_strides[i]
+
+            out[out_pos] = fn(in_storage[in_pos])
 
     return _map
 
@@ -318,8 +329,29 @@ def tensor_zip(fn: Callable[[float, float], float]) -> Any:
         b_shape: Shape,
         b_strides: Strides,
     ) -> None:
-        # TODO: Implement for Task 2.3.
-        raise NotImplementedError("Need to implement for Task 2.3")
+        # Implement for Task 2.3.
+        a_ndim = len(a_shape)
+        b_ndim = len(b_shape)
+
+        for out_index in range(len(out)):
+            out_pos: List[int] = []
+            idx = out_index
+            for dim_size in reversed(out_shape):
+                out_pos.append(idx % dim_size)
+                idx //= dim_size
+            out_pos.reverse()
+
+            a_index = 0
+            for i in range(a_ndim):
+                if a_shape[i] > 1:
+                    a_index += out_pos[i] * a_strides[i]
+
+            b_index = 0
+            for i in range(b_ndim):
+                if b_shape[i] > 1:
+                    b_index += out_pos[i] * b_strides[i]
+
+            out[out_index] = fn(a_storage[a_index], b_storage[b_index])
 
     return _zip
 
@@ -354,8 +386,20 @@ def tensor_reduce(fn: Callable[[float, float], float]) -> Any:
         a_strides: Strides,
         reduce_dim: int,
     ) -> None:
-        # TODO: Implement for Task 2.3.
-        raise NotImplementedError("Need to implement for Task 2.3")
+        # Implement for Task 2.3.
+        coords = np.zeros_like(out_shape)
+        for output_idx in range(np.prod(out_shape)):
+            to_index(output_idx, out_shape, coords)
+            base_pos = index_to_position(coords, a_strides)
+
+            val = a_storage[base_pos]
+
+            for i in range(1, a_shape[reduce_dim]):
+                element_pos = base_pos + i * a_strides[reduce_dim]
+                val = fn(val, a_storage[element_pos])
+
+            output_pos = index_to_position(coords, out_strides)
+            out[output_pos] = val
 
     return _reduce
 
