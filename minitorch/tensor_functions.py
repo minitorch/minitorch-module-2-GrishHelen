@@ -244,7 +244,7 @@ class Permute(Function):
         inv_order: list[int] = [0] * len(dim_permutation)
         for i, idx in enumerate(dim_permutation):
             inv_order[idx] = i
-        return grad_output.permute(inv_order), 0.0
+        return grad_output.permute(*inv_order), 0.0
 
 
 class View(Function):

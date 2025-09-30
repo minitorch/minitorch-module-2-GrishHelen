@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Optional, Type
+from typing import TYPE_CHECKING, Any, Callable, Optional, Type, List
 
 import numpy as np
 from typing_extensions import Protocol
@@ -334,9 +334,7 @@ def tensor_zip(fn: Callable[[float, float], float]) -> Any:
         b_ndim = len(b_shape)
 
         for out_index in range(len(out)):
-            out_pos = []
-
-            out_pos = []
+            out_pos: List[int] = []
             idx = out_index
             for dim_size in reversed(out_shape):
                 out_pos.append(idx % dim_size)
