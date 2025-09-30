@@ -144,8 +144,7 @@ class ReLU(Function):
     def backward(ctx: Context, grad_output: Tensor) -> Tensor:
         # Implement for Task 2.4.
         (t1,) = ctx.saved_values
-        mask = t1.f.greater_zip(t1, t1.f.zeros_like(t1))
-        return grad_output.f.mul_zip(grad_output, mask)
+        return t1.f.relu_back_zip(t1, grad_output)
 
 
 class Log(Function):
@@ -159,8 +158,7 @@ class Log(Function):
     def backward(ctx: Context, grad_output: Tensor) -> Tensor:
         # Implement for Task 2.4.
         (t1,) = ctx.saved_values
-        inv_t1 = t1.f.inv_map(t1)
-        return grad_output.f.mul_zip(grad_output, inv_t1)
+        return t1.f.log_back_zip(t1, grad_output)
 
 
 class Exp(Function):
@@ -203,36 +201,24 @@ class LT(Function):
     @staticmethod
     def forward(ctx: Context, a: Tensor, b: Tensor) -> Tensor:
         # Implement for Task 2.3.
-        ctx.save_for_backward(a)
         return a.f.lt_zip(a, b)
 
     @staticmethod
     def backward(ctx: Context, grad_output: Tensor) -> Tuple[Tensor, Tensor]:
         # Implement for Task 2.4.
-        (a,) = ctx.saved_values
-        zero_grad = a.f.zeros_like(grad_output)
-        return (
-            grad_output.f.mul_zip(grad_output, zero_grad),
-            grad_output.f.mul_zip(grad_output, zero_grad),
-        )
+        return grad_output.zeros(), grad_output.zeros()
 
 
 class EQ(Function):
     @staticmethod
     def forward(ctx: Context, a: Tensor, b: Tensor) -> Tensor:
         # Implement for Task 2.3.
-        ctx.save_for_backward(a)
         return a.f.eq_zip(a, b)
 
     @staticmethod
     def backward(ctx: Context, grad_output: Tensor) -> Tuple[Tensor, Tensor]:
         # Implement for Task 2.4.
-        (a,) = ctx.saved_values
-        zero_grad = a.f.zeros_like(grad_output)
-        return (
-            grad_output.f.mul_zip(grad_output, zero_grad),
-            grad_output.f.mul_zip(grad_output, zero_grad),
-        )
+        return grad_output.zeros(), grad_output.zeros()
 
 
 class IsClose(Function):
