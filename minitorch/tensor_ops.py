@@ -20,8 +20,7 @@ if TYPE_CHECKING:
 
 
 class MapProto(Protocol):
-    def __call__(self, x: Tensor, out: Optional[Tensor] = ..., /) -> Tensor:
-        ...
+    def __call__(self, x: Tensor, out: Optional[Tensor] = ..., /) -> Tensor: ...
 
 
 class TensorOps:
@@ -136,7 +135,7 @@ class SimpleOps(TensorOps):
 
     @staticmethod
     def zip(
-        fn: Callable[[float, float], float]
+        fn: Callable[[float, float], float],
     ) -> Callable[["Tensor", "Tensor"], "Tensor"]:
         """
         Higher-order tensor zip function ::
@@ -268,8 +267,20 @@ def tensor_map(fn: Callable[[float], float]) -> Any:
         in_shape: Shape,
         in_strides: Strides,
     ) -> None:
-        # TODO: Implement for Task 2.3.
-        raise NotImplementedError("Need to implement for Task 2.3")
+        # Implement for Task 2.3.
+        while len(in_shape) < len(out_shape):
+            in_shape = (1,) + in_shape
+            in_strides = (0,) + in_strides
+
+        for out_idx in np.ndindex(*out_shape):
+            in_pos = 0
+            out_pos = 0
+            for i, idx in enumerate(out_idx):
+                if in_shape[i] > 1:
+                    in_pos += idx * in_strides[i]
+                out_pos += idx * out_strides[i]
+
+            out[out_pos] = fn(in_storage[in_pos])
 
     return _map
 
